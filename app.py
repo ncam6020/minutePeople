@@ -1,4 +1,4 @@
-# app.py
+# appp.py
 import streamlit as st
 from upload_handler import upload_document
 from ocr_handler import process_uploaded_file
