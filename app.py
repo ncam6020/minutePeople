@@ -143,7 +143,7 @@ def handle_generate_pipeline_data():
 
 # Sidebar UI
 def render_sidebar():
-    st.sidebar.title("RFP Navigator 🧭")
+    st.sidebar.title("Minutes in a Minute 🧭")
     st.session_state.email = st.sidebar.text_input("Enter your email address so we can track feedback")
 
     if st.session_state.email:
