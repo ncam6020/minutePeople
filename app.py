@@ -3,7 +3,7 @@ import streamlit as st
 from upload_handler import upload_document
 from ocr_handler import process_uploaded_file
 from prompt_handler import create_summary_prompt
-from chat_handler import generate_response
+from chat_handler import generate_ai_response
 
 # Main Streamlit Application
 st.set_page_config(page_title="Minutes in a Minute", page_icon="🛏")
@@ -39,10 +39,8 @@ if st.session_state.extracted_text:
 
     if st.sidebar.button("Generate Executive Summary"):
         summary_prompt = create_summary_prompt(st.session_state.extracted_text)
-        response_content = generate_response(
+        response_content = generate_ai_response(
             summary_prompt,
-            st.session_state.email,
-            st.session_state.pdf_name,
             "Generate Executive Summary"
         )
         if response_content:
