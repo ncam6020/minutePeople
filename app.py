@@ -1,4 +1,3 @@
-from openai import OpenAI
 import streamlit as st
 from chat_handler import generate_response  # Importing the chat handler
 
@@ -7,9 +6,6 @@ MODEL_NAME = "gpt-4"  # Change model to GPT-4 for enhanced capabilities.
 
 # Streamlit app title
 st.title("ChatGPT-like Clone with GPT-4")
-
-# Initialize the OpenAI client
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Set default model in session state (using the constant)
 if "openai_model" not in st.session_state:
