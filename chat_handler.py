@@ -40,22 +40,17 @@ def log_to_google_sheets(email, pdf_name, action, result, tokens_used=0, feedbac
         st.error(f"An error occurred while logging to Google Sheets: {str(e)}")
 
 # Generate AI Response Function (for openai>=1.0.0)
-def generate_response(template, messages, email, pdf_name, action_label):
+def generate_response(template, email, pdf_name, action_label):
     try:
-        # Use the correct API method for version >= 1.0.0
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or gpt-4, replace accordingly
-            messages=messages + [{"role": "user", "content": template}],
+        # Using openai.Completion.create() instead of ChatCompletion
+        response = openai.Completion.create(
+            model="text-davinci-003",  # or any available model like gpt-3.5-turbo, adjust accordingly
+            prompt=template,
             max_tokens=2048,
             temperature=0.2,
             top_p=1.0,
             frequency_penalty=0.0,
             presence_penalty=0.0
         )
-        response_content = response['choices'][0]['message']['content'].strip()
-        tokens_used = len(response_content.split())
-        log_to_google_sheets(email, pdf_name, action_label, response_content, tokens_used)
-        return response_content
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        return None
+        response_content = response.choices[0].text.strip()
+     
