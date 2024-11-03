@@ -75,17 +75,12 @@ def extract_text_from_pdf(file_content):
 def extract_text_with_ocr(image_content):
     image = Image.open(io.BytesIO(image_content))
     ocr_text = pytesseract.image_to_string(image)
-    
-    # Use OpenAI API to further clean and enhance OCR output
-    prompt = f"Clean up the following OCR-extracted text to improve readability and correct any obvious errors:\n\n{ocr_text}"
-    enhanced_text = generate_ai_response(prompt, "Enhance OCR Output")
-    
-    return enhanced_text if enhanced_text else ocr_text
+    return ocr_text
 
 # AI Generation Function
 def generate_ai_response(template, action_label):
     try:
-        response = openai.ChatCompletion.create(
+        response = openai.Client().chat.completions.create(
             model=MODEL_NAME,
             messages=st.session_state.messages + [{"role": "user", "content": template}],
             max_tokens=MAX_TOKENS,
@@ -205,4 +200,52 @@ def render_sidebar():
             if st.sidebar.button("Generate Pipeline Data"):
                 handle_generate_pipeline_data()
 
-# Main
+# Main Content Window UI
+def render_main_ui():
+    st.title("Minutes in a Minute 🛏")
+
+    if not st.session_state.email:
+        st.write("Please enter your email address and upload a document in the sidebar to start. \n\nRemember, this is generative AI and is experimental.")
+    elif not st.session_state.pdf_name:
+        st.write("Please load your document in the sidebar.\n\nRemember, this is generative AI and is experimental.")
+    else:
+        st.markdown('---')
+        st.subheader("**Chat Interface**")
+
+        for i, message in enumerate(st.session_state.messages):
+            with st.chat_message(message["role"]):
+                st.write(message["content"])
+
+                if message["role"] == "assistant":
+                    col1, col2 = st.columns([0.08, 1])
+                    with col1:
+                        if st.button("👍", key=f"thumbs_up_{i}", help="Was this Helpful?"):
+                            st.session_state.feedback[message['content']] = "Thumbs Up"
+                            log_to_google_sheets(st.session_state.email, st.session_state.pdf_name, message["content"], "Thumbs Up")
+                    with col2:
+                        if st.button("👎", key=f"thumbs_down_{i}", help="Was this Helpful?"):
+                            st.session_state.feedback[message['content']] = "Thumbs Down"
+                            log_to_google_sheets(st.session_state.email, st.session_state.pdf_name, message["content"], "Thumbs Down")
+
+        if st.session_state.extracted_text:
+            if prompt := st.chat_input("Ask a question or request data from the document"):
+                st.session_state.messages.append({"role": "user", "content": prompt})
+                with st.chat_message("user"):
+                    st.write(prompt)
+                
+                query_template = f"""
+                Based on the provided document, answer the following question: '{prompt}'. 
+                Provide a concise and accurate response. 
+                If the information is not explicitly mentioned, provide relevant context or suggest an appropriate next step.
+
+                Document Text:
+                {st.session_state.extracted_text}
+                """
+                response_content = generate_ai_response(query_template, prompt)
+                if response_content:
+                    with st.chat_message("assistant"):
+                        st.write(response_content)
+
+# Run the App
+render_sidebar()
+render_main_ui()
