@@ -1,12 +1,15 @@
 import openai
 import streamlit as st
 
-# Constants (You can keep these here or import them if they are shared)
+# Constants
 MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
 TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
 TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no filtering, lower values reduce diversity.
 FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
 PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
+
+# Set the OpenAI API key
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Generate AI Response Function
 def generate_response(model_name, messages):
@@ -28,8 +31,7 @@ def generate_response(model_name, messages):
             temperature=TEMPERATURE,
             top_p=TOP_P,
             frequency_penalty=FREQUENCY_PENALTY,
-            presence_penalty=PRESENCE_PENALTY,
-            stream=False  # No streaming in the handler; we can handle it in the main app if needed.
+            presence_penalty=PRESENCE_PENALTY
         )
         response_content = response.choices[0].message['content'].strip()
         return response_content
