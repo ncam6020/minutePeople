@@ -4,7 +4,7 @@ import streamlit as st
 # Constants
 MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
 TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
-MODEL_NAME = "mini"  # Change model to GPT-4 for enhanced capabilities.
+MODEL_NAME = "gpt-4o-mini"  # Change model to GPT-4 for enhanced capabilities.
 TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no filtering, lower values reduce diversity.
 FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
 PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
