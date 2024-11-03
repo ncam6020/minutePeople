@@ -6,6 +6,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import re
 import time
+import pytesseract
+from PIL import Image
+import io
 
 # Constants
 MAX_TOKENS = 2048
@@ -14,7 +17,7 @@ MODEL_NAME = "gpt-4o-mini"
 
 # Load the OpenAI API key and set up the page configuration
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-st.set_page_config(page_title="shrinking", page_icon="🧭")
+st.set_page_config(page_title="Minutes in a Minute", page_icon="🛏")
 
 # Initialize session state variables
 if 'messages' not in st.session_state:
@@ -61,9 +64,16 @@ def log_to_google_sheets(email, pdf_name, action, result, tokens_used=0, feedbac
 # PDF Extraction Function
 def extract_text_from_pdf(file_content):
     doc = fitz.open(stream=file_content, filetype="pdf")
-    return "\n".join(
+    pdf_text = "\n".join(
         [f"--- Page {i+1} ---\n{page.get_text()}" for i, page in enumerate(doc)]
     )
+    return pdf_text
+
+# OCR Extraction Function
+def extract_text_with_ocr(image_content):
+    image = Image.open(io.BytesIO(image_content))
+    ocr_text = pytesseract.image_to_string(image)
+    return ocr_text
 
 # AI Generation Function
 def generate_ai_response(template, action_label):
@@ -143,31 +153,35 @@ def handle_generate_pipeline_data():
 
 # Sidebar UI
 def render_sidebar():
-    st.sidebar.title("Minutes in a Minute 🧭")
+    st.sidebar.title("Minutes in a Minute 🛏")
     st.session_state.email = st.sidebar.text_input("Enter your email address so we can track feedback")
 
     if st.session_state.email:
-        uploaded_file = st.sidebar.file_uploader("Upload your Notes", type=["pdf"])
+        uploaded_file = st.sidebar.file_uploader("Upload your Notes", type=["pdf", "jpg", "jpeg", "png"])
 
-        # Only extract PDF content if a new file is uploaded or if it's not already in session state
+        # Only extract content if a new file is uploaded or if it's not already in session state
         if uploaded_file and uploaded_file.name != st.session_state.pdf_name:
-            extracted_text = extract_text_from_pdf(uploaded_file.read())
+            if uploaded_file.type == "application/pdf":
+                extracted_text = extract_text_from_pdf(uploaded_file.read())
+            else:
+                extracted_text = extract_text_with_ocr(uploaded_file.read())
+            
             st.session_state.extracted_text = extracted_text
             st.session_state.pdf_name = uploaded_file.name
 
             log_to_google_sheets(
                 email=st.session_state.email,
                 pdf_name=uploaded_file.name,
-                action="PDF Uploaded",
-                result="PDF loaded and text extracted.",
+                action="File Uploaded",
+                result="File loaded and text extracted.",
                 tokens_used=len(extracted_text.split())
             )
             
-             # Uncomment to allow downloading the extracted text
+            # Uncomment to allow downloading the extracted text
             # st.sidebar.download_button(
-            #     label="Download extracted text by pages",
+            #     label="Download extracted text",
             #     data=extracted_text,
-            #     file_name="extracted_text_by_pages.txt",
+            #     file_name="extracted_text.txt",
             #     mime="text/plain"
             # )
 
@@ -184,12 +198,12 @@ def render_sidebar():
 
 # Main Content Window UI
 def render_main_ui():
-    st.title("RFP Navigator 🧭")
+    st.title("Minutes in a Minute 🛏")
 
     if not st.session_state.email:
-        st.write("Please enter your email address and upload an RFP in the sidebar to start. \n\nRemember, this is generative AI and is experimental.")
+        st.write("Please enter your email address and upload a document in the sidebar to start. \n\nRemember, this is generative AI and is experimental.")
     elif not st.session_state.pdf_name:
-        st.write("Please load your RFP in the sidebar.\n\nRemember, this is generative AI and is experimental.")
+        st.write("Please load your document in the sidebar.\n\nRemember, this is generative AI and is experimental.")
     else:
         st.markdown('---')
         st.subheader("**Chat Interface**")
@@ -210,7 +224,7 @@ def render_main_ui():
                             log_to_google_sheets(st.session_state.email, st.session_state.pdf_name, message["content"], "Thumbs Down")
 
         if st.session_state.extracted_text:
-            if prompt := st.chat_input("Ask a question or request data from the RFP"):
+            if prompt := st.chat_input("Ask a question or request data from the document"):
                 st.session_state.messages.append({"role": "user", "content": prompt})
                 with st.chat_message("user"):
                     st.write(prompt)
@@ -220,7 +234,7 @@ def render_main_ui():
                 Provide a concise and accurate response. 
                 If the information is not explicitly mentioned, provide relevant context or suggest an appropriate next step.
 
-                RFP Document Text:
+                Document Text:
                 {st.session_state.extracted_text}
                 """
                 response_content = generate_ai_response(query_template, prompt)
