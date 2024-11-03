@@ -8,11 +8,20 @@ from chat_handler import generate_response
 # Main Streamlit Application
 st.set_page_config(page_title="Minutes in a Minute", page_icon="🛏")
 
+# Initialize session state variables
+if 'messages' not in st.session_state:
+    st.session_state.messages = []  # Initialize messages as an empty list
+if 'feedback' not in st.session_state:
+    st.session_state.feedback = {}
+if 'email' not in st.session_state:
+    st.session_state.email = ""
+if 'extracted_text' not in st.session_state:
+    st.session_state.extracted_text = None
+if 'pdf_name' not in st.session_state:
+    st.session_state.pdf_name = ""
+
 # Sidebar: Upload Documents
 email, uploaded_file = upload_document()
-
-# Initialize extracted_text to avoid NameError
-extracted_text = None
 
 # Process Uploaded File (OCR or PDF Extraction)
 if uploaded_file:
@@ -25,17 +34,21 @@ if uploaded_file:
         st.warning("Unable to extract text from the uploaded file.")
 
 # Display Chat Interface if Document is Processed
-if extracted_text:
+if st.session_state.extracted_text:
     st.sidebar.subheader("**Key Actions**")
 
     if st.sidebar.button("Generate Executive Summary"):
-        summary_prompt = create_summary_prompt(extracted_text)
-        response_content = generate_response(summary_prompt, st.session_state.messages, email, uploaded_file.name, "Generate Executive Summary")
+        summary_prompt = create_summary_prompt(st.session_state.extracted_text)
+        response_content = generate_response(
+            summary_prompt,
+            st.session_state.messages,
+            st.session_state.email,
+            st.session_state.pdf_name,
+            "Generate Executive Summary"
+        )
         if response_content:
             st.session_state.messages.append({"role": "assistant", "content": response_content})
             st.write(response_content)
-
-    # Add any other buttons or actions similarly
 
 # Render main UI
 def render_main_ui():
