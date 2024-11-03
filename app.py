@@ -188,4 +188,21 @@ def render_sidebar():
             # Add a button to download the OCR output for debugging
             if st.session_state.ocr_text:
                 st.sidebar.download_button(
-                   
+                    label="Download OCR extracted text",
+                    data=st.session_state.ocr_text,
+                    file_name="ocr_extracted_text.txt",
+                    mime="text/plain"
+                )
+
+            st.sidebar.markdown('---')
+
+        # Ensure extracted text is available for actions
+        if st.session_state.extracted_text:
+            st.sidebar.subheader("**Key Actions**")
+            if st.sidebar.button("Generate Executive Summary"):
+                handle_generate_summary()
+
+            if st.sidebar.button("Generate Pipeline Data"):
+                handle_generate_pipeline_data()
+
+# Main
