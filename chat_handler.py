@@ -4,9 +4,9 @@ import streamlit as st
 from google_sheets_logger import log_to_google_sheets  # Import Google Sheets logging (can be disabled easily)
 
 # Constants
-MAX_TOKENS = 2048 # Reduce token usage for shorter responses
-TEMPERATURE = 0.2 # Make the response slightly more creative
-MODEL_NAME = "gpt-4o-mini" # Switch to another version if needed 
+MAX_TOKENS = 2048
+TEMPERATURE = 0.2
+MODEL_NAME = "gpt-4o-mini"
 
 # Set OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -14,17 +14,17 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 # Generate AI Response Function
 def generate_response(template, action_label):
     try:
-        # Using the constants for temperature, model name, and other parameters
-        response = openai.Client().chat.completions.create(
+        # Corrected API call for openai version 0.28.0
+        response = openai.Completion.create(
             model=MODEL_NAME,
-            messages=st.session_state.messages + [{"role": "user", "content": template}],
+            prompt=template,
             max_tokens=MAX_TOKENS,
             temperature=TEMPERATURE,
             top_p=1.0,
             frequency_penalty=0.0,
             presence_penalty=0.0
         )
-        response_content = response.choices[0].message.content.strip()
+        response_content = response.choices[0].text.strip()
         st.session_state.messages.append({"role": "assistant", "content": response_content})
         
         # Log to Google Sheets if desired (disabled for now)
