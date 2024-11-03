@@ -1,4 +1,4 @@
-# app.py
+# main.py or app.py
 import streamlit as st
 from upload_handler import upload_document
 from ocr_handler import process_uploaded_file
@@ -11,11 +11,16 @@ st.set_page_config(page_title="Minutes in a Minute", page_icon="🛏")
 # Sidebar: Upload Documents
 email, uploaded_file = upload_document()
 
+# Initialize extracted_text to avoid NameError
+extracted_text = None
+
 # Process Uploaded File (OCR or PDF Extraction)
 if uploaded_file:
     extracted_text = process_uploaded_file(uploaded_file)
     if extracted_text:
         st.success("File processed successfully!")
+    else:
+        st.warning("Unable to extract text from the uploaded file.")
 
 # Display Chat Interface if Document is Processed
 if extracted_text:
@@ -34,3 +39,4 @@ if extracted_text:
         if response_content:
             st.session_state.messages.append({"role": "assistant", "content": response_content})
             st.write(response_content)
+
