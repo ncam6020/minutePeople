@@ -4,9 +4,9 @@ import streamlit as st
 from google_sheets_logger import log_to_google_sheets  # Import Google Sheets logging (can be disabled easily)
 
 # Constants
-MAX_TOKENS = 2048
-TEMPERATURE = 0.2
-MODEL_NAME = "gpt-4o-mini"
+MAX_TOKENS = 2048 # Reduce token usage for shorter responses
+TEMPERATURE = 0.2 # Make the response slightly more creative
+MODEL_NAME = "gpt-4o-mini" # Switch to another version if needed 
 
 # Set OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
