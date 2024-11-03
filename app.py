@@ -51,7 +51,9 @@ if prompt := st.chat_input("What is up?"):
                 stream=True,
             )
             response = st.write_stream(stream)
-        # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response)
+        
+        # Corrected line: Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
+    
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
