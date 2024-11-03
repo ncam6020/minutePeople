@@ -6,7 +6,7 @@ from google_sheets_logger import log_to_google_sheets  # Import Google Sheets lo
 # Constants
 MAX_TOKENS = 2048
 TEMPERATURE = 0.2
-MODEL_NAME = "gpt-4"  # Make sure to use a valid model name like "gpt-3.5-turbo" or "gpt-4"
+MODEL_NAME = "gpt-4"  # Using the GPT-4 model for better conversational abilities
 
 # Set OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -14,7 +14,7 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 # Generate AI Response Function
 def generate_response(template, action_label):
     try:
-        # Correct API call for chat model (chat endpoint)
+        # Correct API call for chat model using the newer version of the library
         response = openai.ChatCompletion.create(
             model=MODEL_NAME,
             messages=st.session_state.messages + [{"role": "user", "content": template}],
