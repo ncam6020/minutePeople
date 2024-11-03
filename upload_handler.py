@@ -2,7 +2,7 @@
 import streamlit as st
 
 def upload_document():
-    st.sidebar.title("Minutes in a Minute 🛏")
+    st.sidebar.title("RFP Navigator 🧭")
     email = st.sidebar.text_input("Enter your email address so we can track feedback")
 
     uploaded_file = None
