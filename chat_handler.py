@@ -53,4 +53,9 @@ def generate_response(template, email, pdf_name, action_label):
             presence_penalty=0.0
         )
         response_content = response.choices[0].text.strip()
-     
+        tokens_used = len(response_content.split())
+        log_to_google_sheets(email, pdf_name, action_label, response_content, tokens_used)
+        return response_content
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        return None
