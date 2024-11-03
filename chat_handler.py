@@ -5,7 +5,10 @@ from datetime import datetime
 import re
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
 # Constants
+MAX_TOKENS = 2048
+TEMPERATURE = 0.2
 MODEL_NAME = "gpt-4o-mini"
 
 # Set OpenAI API key
