@@ -1,14 +1,11 @@
 from openai import OpenAI
 import streamlit as st
+from chat_handler import generate_response  # Importing the chat handler
 
 # Constants
-MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
-TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
-MODEL_NAME = "gpt-4o-mini"  # Change model to GPT-4 for enhanced capabilities.
-TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no filtering, lower values reduce diversity.
-FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
-PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
+MODEL_NAME = "gpt-4"  # Change model to GPT-4 for enhanced capabilities.
 
+# Streamlit app title
 st.title("ChatGPT-like Clone with GPT-4")
 
 # Initialize the OpenAI client
@@ -34,26 +31,14 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate assistant response with error handling
-    try:
+    # Generate assistant response using the chat handler
+    response = generate_response(
+        model_name=st.session_state["openai_model"],
+        messages=st.session_state.messages
+    )
+
+    # If the response is generated successfully, add it to the chat history
+    if response:
         with st.chat_message("assistant"):
-            stream = client.chat.completions.create(
-                model=st.session_state["openai_model"],
-                messages=[
-                    {"role": m["role"], "content": m["content"]}
-                    for m in st.session_state.messages
-                ],
-                max_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE,
-                top_p=TOP_P,
-                frequency_penalty=FREQUENCY_PENALTY,
-                presence_penalty=PRESENCE_PENALTY,
-                stream=True,
-            )
-            response = st.write_stream(stream)
-        
-        # Corrected line: Add assistant response to chat history
+            st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
-    
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
