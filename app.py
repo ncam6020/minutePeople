@@ -4,12 +4,12 @@ import streamlit as st
 # Constants
 MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
 TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
-MODEL_NAME = "gpt-4o-mini"  # The model to use for generating responses. Default is set to "gpt-4o-mini", change if needed.
+MODEL_NAME = "gpt-4"  # Change model to GPT-4 for enhanced capabilities.
 TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no filtering, lower values reduce diversity.
 FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
 PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
 
-st.title("ChatGPT-like Clone")
+st.title("ChatGPT-like Clone with GPT-4")
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -52,6 +52,6 @@ if prompt := st.chat_input("What is up?"):
             )
             response = st.write_stream(stream)
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": response)
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
