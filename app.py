@@ -5,6 +5,9 @@ import streamlit as st
 MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
 TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
 MODEL_NAME = "gpt-4o-mini"  # The model to use for generating responses. Default is set to "gpt-4o-mini", change if needed.
+TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no filtering, lower values reduce diversity.
+FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
+PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
 
 st.title("ChatGPT-like Clone")
 
@@ -42,6 +45,9 @@ if prompt := st.chat_input("What is up?"):
                 ],
                 max_tokens=MAX_TOKENS,
                 temperature=TEMPERATURE,
+                top_p=TOP_P,
+                frequency_penalty=FREQUENCY_PENALTY,
+                presence_penalty=PRESENCE_PENALTY,
                 stream=True,
             )
             response = st.write_stream(stream)
