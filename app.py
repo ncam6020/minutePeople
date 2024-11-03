@@ -14,7 +14,7 @@ MODEL_NAME = "gpt-4o-mini"
 
 # Load the OpenAI API key and set up the page configuration
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-st.set_page_config(page_title="RFP Navigator", page_icon="🧭")
+st.set_page_config(page_title="MinuteTime", page_icon="🧭")
 
 # Initialize session state variables
 if 'messages' not in st.session_state:
