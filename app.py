@@ -30,6 +30,8 @@ if 'extracted_text' not in st.session_state:
     st.session_state.extracted_text = None
 if 'pdf_name' not in st.session_state:
     st.session_state.pdf_name = ""
+if 'ocr_text' not in st.session_state:
+    st.session_state.ocr_text = ""
 
 # Google Sheets Setup
 def connect_to_google_sheets():
@@ -165,7 +167,8 @@ def render_sidebar():
                 extracted_text = extract_text_from_pdf(uploaded_file.read())
             else:
                 extracted_text = extract_text_with_ocr(uploaded_file.read())
-            
+                st.session_state.ocr_text = extracted_text
+                
             st.session_state.extracted_text = extracted_text
             st.session_state.pdf_name = uploaded_file.name
 
@@ -177,13 +180,14 @@ def render_sidebar():
                 tokens_used=len(extracted_text.split())
             )
             
-            # Uncomment to allow downloading the extracted text
-            # st.sidebar.download_button(
-            #     label="Download extracted text",
-            #     data=extracted_text,
-            #     file_name="extracted_text.txt",
-            #     mime="text/plain"
-            # )
+            # Add a button to download the OCR output for debugging
+            if st.session_state.ocr_text:
+                st.sidebar.download_button(
+                    label="Download OCR extracted text",
+                    data=st.session_state.ocr_text,
+                    file_name="ocr_extracted_text.txt",
+                    mime="text/plain"
+                )
 
             st.sidebar.markdown('---')
 
