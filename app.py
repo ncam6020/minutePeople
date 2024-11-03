@@ -41,7 +41,6 @@ if st.session_state.extracted_text:
         summary_prompt = create_summary_prompt(st.session_state.extracted_text)
         response_content = generate_response(
             summary_prompt,
-            st.session_state.messages,
             st.session_state.email,
             st.session_state.pdf_name,
             "Generate Executive Summary"
