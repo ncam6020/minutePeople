@@ -1,37 +1,38 @@
-# chat_handler.py
 import openai
 import streamlit as st
-from google_sheets_logger import log_to_google_sheets  # Import Google Sheets logging (can be disabled easily)
 
-# Constants
-MAX_TOKENS = 2048
-TEMPERATURE = 0.2
-MODEL_NAME = "gpt-4"  # Using the GPT-4 model for better conversational abilities
-
-# Set OpenAI API key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Constants (You can keep these here or import them if they are shared)
+MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
+TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
+TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no filtering, lower values reduce diversity.
+FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
+PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
 
 # Generate AI Response Function
-def generate_response(template, action_label):
+def generate_response(model_name, messages):
+    """
+    Function to generate an AI response using OpenAI's Chat API.
+    
+    Parameters:
+    - model_name: The model to use, e.g., "gpt-4".
+    - messages: The conversation history as a list of dicts with "role" and "content".
+    
+    Returns:
+    - response_content: The generated response content as a string.
+    """
     try:
-        # Correct API call for chat model using the newer version of the library
         response = openai.ChatCompletion.create(
-            model=MODEL_NAME,
-            messages=st.session_state.messages + [{"role": "user", "content": template}],
+            model=model_name,
+            messages=messages,
             max_tokens=MAX_TOKENS,
             temperature=TEMPERATURE,
-            top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0
+            top_p=TOP_P,
+            frequency_penalty=FREQUENCY_PENALTY,
+            presence_penalty=PRESENCE_PENALTY,
+            stream=False  # No streaming in the handler; we can handle it in the main app if needed.
         )
         response_content = response.choices[0].message['content'].strip()
-        st.session_state.messages.append({"role": "assistant", "content": response_content})
-        
-        # Log to Google Sheets if desired (disabled for now)
-        tokens_used = len(response_content.split())
-        # log_to_google_sheets(st.session_state.email, st.session_state.pdf_name, action_label, response_content, tokens_used=tokens_used)
-        
         return response_content
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+        st.error(f"An error occurred while generating the response: {str(e)}")
         return None
