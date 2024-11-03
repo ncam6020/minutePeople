@@ -147,7 +147,7 @@ def render_sidebar():
     st.session_state.email = st.sidebar.text_input("Enter your email address so we can track feedback")
 
     if st.session_state.email:
-        uploaded_file = st.sidebar.file_uploader("Upload your PDF", type=["pdf"])
+        uploaded_file = st.sidebar.file_uploader("Upload your Notes", type=["pdf"])
 
         # Only extract PDF content if a new file is uploaded or if it's not already in session state
         if uploaded_file and uploaded_file.name != st.session_state.pdf_name:
