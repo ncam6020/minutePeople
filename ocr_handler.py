@@ -6,10 +6,9 @@ import io
 
 def extract_text_from_pdf(file_content):
     doc = fitz.open(stream=file_content, filetype="pdf")
-    pdf_text = "\n".join(
+    return "\n".join(
         [f"--- Page {i+1} ---\n{page.get_text()}" for i, page in enumerate(doc)]
     )
-    return pdf_text
 
 def extract_text_with_ocr(image_content):
     image = Image.open(io.BytesIO(image_content))
