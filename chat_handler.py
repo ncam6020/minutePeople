@@ -5,6 +5,8 @@ from datetime import datetime
 import re
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+# Constants
+MODEL_NAME = "gpt-4o-mini"
 
 # Set OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -42,19 +44,19 @@ def log_to_google_sheets(email, pdf_name, action, result, tokens_used=0, feedbac
 # Generate AI Response Function (for openai>=1.0.0)
 def generate_response(template, email, pdf_name, action_label):
     try:
-        # Using openai.Completion.create() instead of ChatCompletion
-        response = openai.Completion.create(
-            model="text-davinci-003",  # or any available model like gpt-3.5-turbo, adjust accordingly
-            prompt=template,
-            max_tokens=2048,
-            temperature=0.2,
+           response = openai.Client().chat.completions.create(
+            model=MODEL_NAME,
+            messages=st.session_state.messages + [{"role": "user", "content": template}],
+            max_tokens=MAX_TOKENS,
+            temperature=TEMPERATURE,
             top_p=1.0,
             frequency_penalty=0.0,
             presence_penalty=0.0
         )
-        response_content = response.choices[0].text.strip()
+        response_content = response.choices[0].message.content.strip()
+        st.session_state.messages.append({"role": "assistant", "content": response_content})
         tokens_used = len(response_content.split())
-        log_to_google_sheets(email, pdf_name, action_label, response_content, tokens_used)
+        log_to_google_sheets(st.session_state.email, st.session_state.pdf_name, action_label, response_content, tokens_used=tokens_used)
         return response_content
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
