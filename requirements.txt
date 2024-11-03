@@ -3,3 +3,5 @@ openai>=1.0.0
 pymupdf
 gspread
 oauth2client
+pytesseract
+Pillow
