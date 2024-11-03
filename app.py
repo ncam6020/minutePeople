@@ -1,33 +1,51 @@
 from openai import OpenAI
 import streamlit as st
 
-st.title("ChatGPT-like clone")
+# Constants
+MAX_TOKENS = 2048  # Maximum number of tokens for the response (controls response length).
+TEMPERATURE = 0.2  # Temperature controls creativity: Lower values make responses more focused/deterministic, higher values make responses more creative/unpredictable.
+MODEL_NAME = "gpt-4o-mini"  # The model to use for generating responses. Default is set to "gpt-4o-mini", change if needed.
 
+st.title("ChatGPT-like Clone")
+
+# Initialize the OpenAI client
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+# Set default model in session state (using the constant)
 if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo"
+    st.session_state["openai_model"] = MODEL_NAME
 
+# Initialize chat history in session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Accept user input
 if prompt := st.chat_input("What is up?"):
+    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        stream = client.chat.completions.create(
-            model=st.session_state["openai_model"],
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
-        response = st.write_stream(stream)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    # Generate assistant response with error handling
+    try:
+        with st.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model=st.session_state["openai_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+                max_tokens=MAX_TOKENS,
+                temperature=TEMPERATURE,
+                stream=True,
+            )
+            response = st.write_stream(stream)
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
