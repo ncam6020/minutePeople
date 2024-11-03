@@ -8,9 +8,6 @@ TOP_P = 1.0  # Controls the diversity of the output. A value of 1.0 means no fil
 FREQUENCY_PENALTY = 0.0  # Discourages repeated phrases. Higher values reduce repetition in responses.
 PRESENCE_PENALTY = 0.0  # Encourages the model to discuss new topics. Higher values encourage novelty.
 
-# Set the OpenAI API key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
 # Generate AI Response Function
 def generate_response(model_name, messages):
     """
@@ -24,6 +21,10 @@ def generate_response(model_name, messages):
     - response_content: The generated response content as a string.
     """
     try:
+        # Set OpenAI API key using Streamlit secrets
+        openai.api_key = st.secrets["OPENAI_API_KEY"]
+
+        # Generate response using the OpenAI Chat API
         response = openai.ChatCompletion.create(
             model=model_name,
             messages=messages,
@@ -35,6 +36,7 @@ def generate_response(model_name, messages):
         )
         response_content = response.choices[0].message['content'].strip()
         return response_content
+
     except Exception as e:
         st.error(f"An error occurred while generating the response: {str(e)}")
         return None
