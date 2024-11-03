@@ -18,6 +18,7 @@ def connect_to_google_sheets():
 
 sheet = connect_to_google_sheets()
 
+# Logging Function
 def log_to_google_sheets(email, pdf_name, action, result, tokens_used=0, feedback=None):
     def clean_text(text):
         return re.sub(r'[^\x00-\x7F]+', '', text)[:1000]
@@ -38,11 +39,13 @@ def log_to_google_sheets(email, pdf_name, action, result, tokens_used=0, feedbac
     except Exception as e:
         st.error(f"An error occurred while logging to Google Sheets: {str(e)}")
 
-def generate_response(prompt, messages, email, pdf_name, action_label):
+# Generate AI Response Function (for openai>=1.0.0)
+def generate_response(template, messages, email, pdf_name, action_label):
     try:
+        # Use the correct API method for version >= 1.0.0
         response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
-            messages=messages + [{"role": "user", "content": prompt}],
+            model="gpt-3.5-turbo",  # or gpt-4, replace accordingly
+            messages=messages + [{"role": "user", "content": template}],
             max_tokens=2048,
             temperature=0.2,
             top_p=1.0,
